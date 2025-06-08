@@ -1,0 +1,26 @@
+<div class="row g-4">
+  <div class="col-12">
+    <h1 class="display-5 fw-bold text-primary">
+      <i class="bi bi-star-fill text-warning"></i> Nossos Produtos
+    </h1>
+    <p class="lead">Encontre os melhores eletrônicos do mercado</p>
+    <hr class="my-4">
+  </div>
+
+  <div class="col-md-4" *ngFor="let produto of produtos">
+    <div class="card h-100 border-0 shadow-sm hover-effect">
+      <div class="badge bg-danger position-absolute top-0 end-0 m-2">Oferta!</div>
+      <img [src]="produto.imagem" class="card-img-top p-3" [alt]="produto.nome">
+      <div class="card-body">
+        <h5 class="card-title fw-bold">{{produto.nome}}</h5>
+        <p class="card-text text-muted">{{produto.descricao}}</p>
+        <div class="d-flex justify-content-between align-items-center">
+          <span class="h4 text-success fw-bold">R$ {{produto.preco}}</span>
+          <button class="btn btn-primary">
+            <i class="bi bi-cart-plus"></i> Comprar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

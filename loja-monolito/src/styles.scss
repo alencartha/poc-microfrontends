@@ -1,0 +1,34 @@
+
+// Substitua no styles.scss:
+@import "bootstrap/dist/css/bootstrap.min.css";
+
+/* Estilos customizados (opcional) */
+
+// Estilos globais
+body {
+  background-color: #f8f9fa;
+  padding-top: 56px; // Espaço para navbar fixa
+}
+
+// Container principal
+.main-container {
+  min-height: calc(100vh - 120px);
+  padding: 2rem 0;
+}
+
+// Navbar estilizada
+.navbar-brand {
+  font-weight: 700;
+  font-size: 1.5rem;
+}
+
+.nav-link {
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  border-radius: 0.25rem;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+}
