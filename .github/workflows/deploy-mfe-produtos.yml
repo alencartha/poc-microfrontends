@@ -2,8 +2,8 @@ name: Deploy mfe-produtos
 
 on:
   push:
-    branches: [ main, master ]
-  workflow_dispatch:
+    branches: ['**']   # roda em qualquer branch; ajuste se quiser
+  workflow_dispatch:    # permite rodar manualmente
 
 permissions:
   contents: read
@@ -53,12 +53,19 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      # Força saída para "dist/" (pasta simples) para facilitar o deploy
       - name: Build (Angular)
         run: |
-          pnpm exec ng version || true
-          pnpm exec ng build --configuration production --output-path dist
+            pnpm exec ng version || true
+            pnpm exec ng build --configuration production --output-path dist
+        # Se precisar base-href (Project Pages), troque a linha acima por:
+        # pnpm exec ng build --configuration production --output-path dist --base-href "/<nome-do-repo>/"
 
-      # Sobe o diretório gerado como artefato para o GitHub Pages
+      # === Publique no GitHub Pages (opcional). Ative Pages em Settings → Pages → Build & deployment: GitHub Actions
       - name: Upload artifact
-        uses:
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: mfe-produtos/dist
+
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v4
+        id: deployment
