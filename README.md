@@ -105,5 +105,7 @@ Esta PoC visa validar os seguintes aspectos:
 
 ---
 
-**Licença:** Este projeto é apenas para fins educacionais e não possui finalidade comercial.
+**Licença:** Projeto exclusivamente educacional, parte do TCC de Thaís Araujo de Alencar
+(MBA em Engenharia de Software – USP/ESALQ).
+Sem finalidade comercial.
 ```

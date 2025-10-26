@@ -79,11 +79,10 @@
           "defaultConfiguration": "production"
         },
         "serve": {
-          "builder": "@angular-architects/module-federation:dev-server",
+          "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "port": 4202,
-            "publicHost": "http://localhost:4202",
-            "extraWebpackConfig": "webpack.config.js"
+            "buildTarget": "host-app:build:development",
+            "port": 4202
           },
           "configurations": {
             "production": {
@@ -105,7 +104,10 @@
           "builder": "@angular-devkit/build-angular:karma",
           "options": {
             "main": "src/test.ts",
-            "polyfills": ["zone.js", "zone.js/testing"],
+            "polyfills": [
+              "zone.js",
+              "zone.js/testing"
+            ],
             "tsConfig": "tsconfig.spec.json",
             "karmaConfig": "karma.conf.js",
             "assets": [
