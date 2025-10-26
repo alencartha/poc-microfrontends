@@ -8,43 +8,64 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        app: [ "loja-monolito", "mfe-produtos", "host-app" ]  # 👈 pastas dos seus apps
+
+    defaults:
+      run:
+        working-directory: ${{ matrix.app }}  # 👈 roda os comandos dentro de cada app
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # Node SEM cache aqui (não chamar pnpm ainda)
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 18
 
-      # Instala o pnpm e coloca no PATH
       - name: Setup pnpm
         uses: pnpm/action-setup@v3
         with:
           version: 9
           run_install: false
 
-      # Descobre o caminho do store do pnpm para cachear
+      - name: Check pnpm
+        run: pnpm --version
+
+      # Descobre o store do pnpm para cachear (precisa do pnpm já instalado)
       - name: Get pnpm store path
         id: pnpm-cache
         run: echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_OUTPUT
 
-      # Restaura/Salva cache do store do pnpm com base no pnpm-lock.yaml
+      # Cache do store do pnpm por app (chave baseada no lockfile de cada app)
       - name: Restore pnpm store from cache
         uses: actions/cache@v4
         with:
           path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
-          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          key: ${{ runner.os }}-pnpm-store-${{ matrix.app }}-${{ hashFiles(format('{0}/pnpm-lock.yaml', matrix.app)) }}
           restore-keys: |
-            ${{ runner.os }}-pnpm-store-
+            ${{ runner.os }}-pnpm-store-${{ matrix.app }}-
 
-      # (Opcional) aquece o cache em monorepos
+      # (Opcional, acelera em monorepo)
       - name: Fetch store cache
         run: pnpm fetch
+        continue-on-error: true
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      # Ajuste se seus scripts tiverem nomes diferentes
+      - name: Lint
+        run: pnpm run lint
+        continue-on-error: true
+
+      - name: Test
+        run: pnpm test -- --ci --reporters=default
+        continue-on-error: true
+
       - name: Build
-        run: pnpm build
+        run: pnpm run build
