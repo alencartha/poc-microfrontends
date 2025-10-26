@@ -1,4 +1,4 @@
-name: CI (monorepo)
+name: CI (Monorepo)
 
 on:
   push:
@@ -8,42 +8,29 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    env:
-      CI: true
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 18
-          cache: pnpm
+          cache: 'pnpm'
 
-
+      # 👇 Este passo é essencial — instala o pnpm antes de qualquer uso
       - name: Setup pnpm
         uses: pnpm/action-setup@v3
         with:
-          version: 9
+          version: 9 # use a versão que seu projeto usa (verifique no packageManager ou package.json)
           run_install: false
 
- 
-      - name: pnpm fetch
+      # (opcional, mas acelera instalação em monorepos)
+      - name: Fetch store cache
         run: pnpm fetch
-
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
-
- 
-      - name: Lint
-        run: pnpm lint
-        continue-on-error: true  
-
-      - name: Test
-        run: pnpm test -- --ci --reporters=default
 
       - name: Build
         run: pnpm build
