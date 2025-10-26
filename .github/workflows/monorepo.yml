@@ -1,36 +1,11 @@
-name: CI/CD - Monorepo Micro Frontends
+- name: Setup Node.js
+  uses: actions/setup-node@v4
+  with:
+    node-version: 18
+    cache: 'pnpm'
 
-on:
-  push:
-    branches: [main, dev]
-  pull_request:
-    branches: [main, dev]
+- name: Install pnpm
+  run: npm install -g pnpm
 
-jobs:
-  build:
-    strategy:
-      matrix:
-        project: [loja-monolito, mfe-produtos, host-app]
-
-    name: Build e Test - ${{ matrix.project }}
-    runs-on: ubuntu-latest
-
-    defaults:
-      run:
-        working-directory: ${{ matrix.project }}
-
-    steps:
-      - name: Checkout do código
-        uses: actions/checkout@v4
-
-      - name: Instalação do Node e pnpm
-        uses: actions/setup-node@v4
-        with:
-          node-version: 18
-          cache: "pnpm"
-
-      - name: Instalar dependências
-        run: pnpm install
-
-      - name: Build de Produção
-        run: pnpm build --configuration production
+- name: Install dependencies
+  run: pnpm install
