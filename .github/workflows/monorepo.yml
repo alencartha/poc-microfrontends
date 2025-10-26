@@ -1,22 +1,27 @@
-name: CI (Monorepo)
+name: Deploy mfe-produtos
 
 on:
   push:
     branches: [ main, master ]
-  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
 
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
 
-    strategy:
-      fail-fast: false
-      matrix:
-        app: [ "loja-monolito", "mfe-produtos", "host-app" ]  # 👈 pastas dos seus apps
-
+    # Tudo roda dentro da pasta do app
     defaults:
       run:
-        working-directory: ${{ matrix.app }}  # 👈 roda os comandos dentro de cada app
+        working-directory: mfe-produtos
 
     steps:
       - name: Checkout
@@ -33,39 +38,27 @@ jobs:
           version: 9
           run_install: false
 
-      - name: Check pnpm
-        run: pnpm --version
-
-      # Descobre o store do pnpm para cachear (precisa do pnpm já instalado)
       - name: Get pnpm store path
         id: pnpm-cache
         run: echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_OUTPUT
 
-      # Cache do store do pnpm por app (chave baseada no lockfile de cada app)
       - name: Restore pnpm store from cache
         uses: actions/cache@v4
         with:
           path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
-          key: ${{ runner.os }}-pnpm-store-${{ matrix.app }}-${{ hashFiles(format('{0}/pnpm-lock.yaml', matrix.app)) }}
+          key: ${{ runner.os }}-pnpm-store-mfe-produtos-${{ hashFiles('mfe-produtos/pnpm-lock.yaml') }}
           restore-keys: |
-            ${{ runner.os }}-pnpm-store-${{ matrix.app }}-
-
-      # (Opcional, acelera em monorepo)
-      - name: Fetch store cache
-        run: pnpm fetch
-        continue-on-error: true
+            ${{ runner.os }}-pnpm-store-mfe-produtos-
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      # Ajuste se seus scripts tiverem nomes diferentes
-      - name: Lint
-        run: pnpm run lint
-        continue-on-error: true
+      # Força saída para "dist/" (pasta simples) para facilitar o deploy
+      - name: Build (Angular)
+        run: |
+          pnpm exec ng version || true
+          pnpm exec ng build --configuration production --output-path dist
 
-      - name: Test
-        run: pnpm test -- --ci --reporters=default
-        continue-on-error: true
-
-      - name: Build
-        run: pnpm run build
+      # Sobe o diretório gerado como artefato para o GitHub Pages
+      - name: Upload artifact
+        uses:
