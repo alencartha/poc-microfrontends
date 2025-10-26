@@ -12,20 +12,34 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      # Node SEM cache aqui (não chamar pnpm ainda)
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 18
-          cache: 'pnpm'
 
-      # 👇 Este passo é essencial — instala o pnpm antes de qualquer uso
+      # Instala o pnpm e coloca no PATH
       - name: Setup pnpm
         uses: pnpm/action-setup@v3
         with:
-          version: 9 # use a versão que seu projeto usa (verifique no packageManager ou package.json)
+          version: 9
           run_install: false
 
-      # (opcional, mas acelera instalação em monorepos)
+      # Descobre o caminho do store do pnpm para cachear
+      - name: Get pnpm store path
+        id: pnpm-cache
+        run: echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_OUTPUT
+
+      # Restaura/Salva cache do store do pnpm com base no pnpm-lock.yaml
+      - name: Restore pnpm store from cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      # (Opcional) aquece o cache em monorepos
       - name: Fetch store cache
         run: pnpm fetch
 
