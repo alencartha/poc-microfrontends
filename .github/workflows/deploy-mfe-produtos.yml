@@ -2,8 +2,8 @@ name: Deploy mfe-produtos
 
 on:
   push:
-    branches: ['**']   # roda em qualquer branch; ajuste se quiser
-  workflow_dispatch:    # permite rodar manualmente
+    branches: ['**']
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -18,7 +18,6 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
 
-    # Tudo roda dentro da pasta do app
     defaults:
       run:
         working-directory: mfe-produtos
@@ -27,10 +26,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      # 👇 Angular CLI pede Node >= 20.19 (ou 22.12). Vamos de 20.19.x
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: '20.19.x'
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v3
@@ -55,12 +55,11 @@ jobs:
 
       - name: Build (Angular)
         run: |
-            pnpm exec ng version || true
-            pnpm exec ng build --configuration production --output-path dist
-        # Se precisar base-href (Project Pages), troque a linha acima por:
-        # pnpm exec ng build --configuration production --output-path dist --base-href "/<nome-do-repo>/"
+          pnpm exec ng version || true
+          pnpm exec ng build --configuration production --output-path dist
+          # Se for Project Pages, use base-href:
+          # pnpm exec ng build --configuration production --output-path dist --base-href "/poc-microfrontends/"
 
-      # === Publique no GitHub Pages (opcional). Ative Pages em Settings → Pages → Build & deployment: GitHub Actions
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
