@@ -34,7 +34,7 @@
 							]
 						},
 						"extraWebpackConfig": "webpack.config.js",
-						"index": "src\\index.html",
+						"index": "src/index.html",
 						"commonChunk": false
 					},
 					"configurations": {
