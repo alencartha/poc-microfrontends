@@ -19,9 +19,9 @@ poc-microfrontends/
 
 ## Tecnologias Utilizadas
 
-- **Angular 20**
+- **Angular 2+**
 - **Webpack Module Federation**
-- **Vite** (usado como builder moderno no Angular 20+)
+- **Vite** (usado como builder moderno no Angular 2+)
 - **TypeScript**
 - **pnpm** para gerenciamento de pacotes
 - **Git** para versionamento
